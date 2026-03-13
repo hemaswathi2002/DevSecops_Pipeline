@@ -1,13 +1,13 @@
-# .github/workflows/imagepush.yml
 name: Docker Image Build and Push
 
 on:
   push:
     branches:
-      - main  # workflow triggers automatically on push to main
+      - main  # triggers on push to main
 
 jobs:
   image_push:
+    runs-on: [self-hosted, Windows]
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
       IMAGE_NAME: hemaswathi2002/petapp
@@ -16,20 +16,20 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set environment variables
-        run: echo "IMAGE_NAME=hemaswathi2002/petapp" >> $GITHUB_ENV
-
       - name: Build Docker Image
+        shell: pwsh
         run: |
           # Build image tagged with commit SHA
-          sudo docker build -t $IMAGE_NAME:${GITHUB_SHA} .
+          docker build -t $env:IMAGE_NAME:$env:GITHUB_SHA .
           # Tag the same image as 'latest'
-          sudo docker tag $IMAGE_NAME:${GITHUB_SHA} $IMAGE_NAME:latest
+          docker tag $env:IMAGE_NAME:$env:GITHUB_SHA $env:IMAGE_NAME:latest
 
       - name: Log in to DockerHub
-        run: echo "${{ secrets.DOCKER_PASSWORD }}" | sudo docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+        shell: pwsh
+        run: echo $env:DOCKER_PASSWORD | docker login -u $env:DOCKER_USERNAME --password-stdin
 
       - name: Push Docker Images
+        shell: pwsh
         run: |
-          sudo docker push $IMAGE_NAME:${GITHUB_SHA}
-          sudo docker push $IMAGE_NAME:latest
+          docker push $env:IMAGE_NAME:$env:GITHUB_SHA
+          docker push $env:IMAGE_NAME:latest
