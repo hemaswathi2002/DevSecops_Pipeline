@@ -2,13 +2,14 @@
 name: Docker Image Build and Push
 
 on:
- workflow_call:
-
-jobs:
+  push:
+    branches:
+      - main
+  jobs:
   image_push:
-    runs-on: self-hosted
+    runs-on: [self-hosted, Windows]
     env:
-      DOCKER_IMAGE: ankit1111/petapp:${{ github.sha }}
+      IMAGE_NAME: hemaswathi2002/petapp:${{ github.sha }}
 
     steps:
       - name: Build Docker Image
